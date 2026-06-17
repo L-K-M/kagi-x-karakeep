@@ -105,6 +105,10 @@
       return;
     }
 
+    if (host) {
+      host.setAttribute("data-kxk-theme", detectPageTheme());
+    }
+
     shadow.innerHTML = `
       <style>${styles()}</style>
       <section class="panel">
@@ -257,6 +261,45 @@
     }
   }
 
+  // Kagi ships several themes (and a custom-theme option), so we can't rely on a
+  // class name. Instead, sample the effective page background and pick a light
+  // or dark panel palette from its luminance — robust to whatever theme is set.
+  function detectPageTheme() {
+    const luminance = backgroundLuminance();
+    if (luminance === null) {
+      return "dark";
+    }
+    return luminance > 0.5 ? "light" : "dark";
+  }
+
+  function backgroundLuminance() {
+    let node = host && host.parentElement ? host.parentElement : document.body;
+    while (node) {
+      const color = parseRgb(getComputedStyle(node).backgroundColor);
+      if (color && color.a > 0) {
+        const [r, g, b] = [color.r, color.g, color.b].map((channel) => {
+          const c = channel / 255;
+          return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+        });
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      }
+      node = node.parentElement;
+    }
+    return null;
+  }
+
+  function parseRgb(value) {
+    const match = String(value || "").match(/rgba?\(([^)]+)\)/i);
+    if (!match) {
+      return null;
+    }
+    const parts = match[1].split(",").map((part) => parseFloat(part.trim()));
+    if (parts.length < 3 || parts.some((part) => Number.isNaN(part))) {
+      return null;
+    }
+    return { r: parts[0], g: parts[1], b: parts[2], a: parts.length > 3 ? parts[3] : 1 };
+  }
+
   function getHostname(url) {
     try {
       return new URL(url).hostname.replace(/^www\./, "");
@@ -326,15 +369,47 @@
         --kxk-link-hover: #c5d0ff;
         --kxk-green: #55d6a5;
         --kxk-accent: #8e98ff;
+        --kxk-panel-gradient: linear-gradient(180deg, rgba(46, 47, 60, 0.92), var(--kxk-bg));
+        --kxk-panel-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+        --kxk-button-border: rgba(255, 255, 255, 0.16);
+        --kxk-button-bg: rgba(255, 255, 255, 0.07);
+        --kxk-hover-row: rgba(255, 255, 255, 0.035);
+        --kxk-tag-bg: rgba(142, 152, 255, 0.16);
+        --kxk-tag-text: #d3d8ff;
+        --kxk-error: #ffb4a8;
+      }
+
+      /* Light palette, applied when the page background reads as light. */
+      :host([data-kxk-theme="light"]) {
+        color-scheme: light;
+        --kxk-bg: #ffffff;
+        --kxk-bg-soft: #f2f3f8;
+        --kxk-border: rgba(15, 18, 30, 0.14);
+        --kxk-border-soft: rgba(15, 18, 30, 0.08);
+        --kxk-text: #1b1d27;
+        --kxk-muted: #4d5468;
+        --kxk-subtle: #6b7280;
+        --kxk-link: #3a4ad6;
+        --kxk-link-hover: #2433b8;
+        --kxk-green: #1f9d6b;
+        --kxk-accent: #5560e8;
+        --kxk-panel-gradient: linear-gradient(180deg, #ffffff, var(--kxk-bg-soft));
+        --kxk-panel-shadow: 0 12px 28px rgba(15, 18, 30, 0.12);
+        --kxk-button-border: rgba(15, 18, 30, 0.16);
+        --kxk-button-bg: rgba(15, 18, 30, 0.04);
+        --kxk-hover-row: rgba(15, 18, 30, 0.035);
+        --kxk-tag-bg: rgba(85, 96, 232, 0.12);
+        --kxk-tag-text: #2e379e;
+        --kxk-error: #c0392b;
       }
 
       .panel {
         border: 1px solid var(--kxk-border);
         border-radius: 18px;
-        background: linear-gradient(180deg, rgba(46, 47, 60, 0.92), var(--kxk-bg));
+        background: var(--kxk-panel-gradient);
         color: var(--kxk-text);
         overflow: hidden;
-        box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+        box-shadow: var(--kxk-panel-shadow);
       }
 
       .header {
@@ -392,9 +467,9 @@
       }
 
       button {
-        border: 1px solid rgba(255, 255, 255, 0.16);
+        border: 1px solid var(--kxk-button-border);
         border-radius: 999px;
-        background: rgba(255, 255, 255, 0.07);
+        background: var(--kxk-button-bg);
         color: var(--kxk-text);
         cursor: pointer;
         font: inherit;
@@ -420,7 +495,7 @@
       }
 
       .message.error {
-        color: #ffb4a8;
+        color: var(--kxk-error);
       }
 
       .results {
@@ -448,7 +523,7 @@
       }
 
       .result:hover {
-        background: rgba(255, 255, 255, 0.035);
+        background: var(--kxk-hover-row);
       }
 
       .result:hover::before {
@@ -471,7 +546,7 @@
         flex: 0 0 auto;
         width: 74px;
         height: 56px;
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        border: 1px solid var(--kxk-border);
         border-radius: 10px;
         background: var(--kxk-bg-soft);
         overflow: hidden;
@@ -532,8 +607,8 @@
 
       .tags span {
         border-radius: 999px;
-        background: rgba(142, 152, 255, 0.16);
-        color: #d3d8ff;
+        background: var(--kxk-tag-bg);
+        color: var(--kxk-tag-text);
         font-size: 11px;
         font-weight: 700;
         padding: 3px 7px;

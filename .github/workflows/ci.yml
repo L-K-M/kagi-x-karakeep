@@ -27,6 +27,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # ESLint checks the hand-written JavaScript (unused vars, accidental
+      # globals, style drift) — complementary to web-ext lint.
+      - name: Lint JavaScript
+        run: npm run lint:js
+
       # Mozilla's web-ext lint validates the manifest and packaged sources.
       # web-ext-config.cjs scopes it (and build/sign) to the shipped files.
       - name: Lint extension

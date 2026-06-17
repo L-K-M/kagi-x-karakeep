@@ -18,7 +18,8 @@ On every pull request and every push to `main`, the workflow:
 1. Checks out the repository.
 2. Sets up Node.js 20 with npm caching.
 3. Installs the pinned tooling with `npm ci` (from the committed `package-lock.json`).
-4. Runs `npm run lint` → `web-ext lint`, Mozilla's linter, which validates `manifest.json` and the packaged sources, flagging manifest errors and common add-on problems. It fails the build on **errors**; warnings (e.g. advisory `innerHTML` notices) do not.
+4. Runs `npm run lint:js` → `eslint`, which checks the hand-written JavaScript (unused vars, accidental globals, style drift).
+5. Runs `npm run lint` → `web-ext lint`, Mozilla's linter, which validates `manifest.json` and the packaged sources, flagging manifest errors and common add-on problems. It fails the build on **errors**; warnings (e.g. advisory `innerHTML` notices) do not.
 
 A `concurrency` group cancels superseded runs when a branch is pushed again.
 
@@ -26,6 +27,7 @@ A `concurrency` group cancels superseded runs when a branch is pushed again.
 
 ```bash
 npm install
+npm run lint:js     # eslint (hand-written JS)
 npm run lint        # web-ext lint
 npm run build       # web-ext build  → web-ext-artifacts/kagi_karakeep-<version>.zip
 npm run start       # web-ext run    → launches the add-on in a temp Firefox profile

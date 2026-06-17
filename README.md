@@ -1,6 +1,6 @@
 # Kagi × Karakeep
 
-**Version:** <!-- version -->0.1.3<!-- /version -->
+**Version:** [<!-- version -->0.1.3<!-- /version -->](https://github.com/L-K-M/kagi-x-karakeep/releases/latest)
 
 A small Firefox extension that adds a Karakeep results card to Kagi search pages. It reads the Kagi search term from `https://kagi.com/search?q=...`, searches your Karakeep bookmarks, and renders matching saved links in Kagi's right column.
 

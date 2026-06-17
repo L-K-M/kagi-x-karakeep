@@ -171,7 +171,10 @@
   }
 
   function renderBookmark(bookmark) {
-    const url = bookmark.url || "";
+    // Only ever linkify http(s) URLs. Karakeep holds the user's own data, but a
+    // saved javascript:/data: URL should never become a clickable link injected
+    // into the Kagi results page.
+    const url = isSafeHttpUrl(bookmark.url) ? bookmark.url : "";
     const hostname = getHostname(url);
     const tags = Array.isArray(bookmark.tags) ? bookmark.tags.slice(0, 4) : [];
     return `
@@ -240,6 +243,15 @@
       return new URL(location.href).searchParams.get("q") || "";
     } catch (_error) {
       return "";
+    }
+  }
+
+  function isSafeHttpUrl(url) {
+    try {
+      const protocol = new URL(String(url || "")).protocol;
+      return protocol === "https:" || protocol === "http:";
+    } catch (_error) {
+      return false;
     }
   }
 

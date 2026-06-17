@@ -1,0 +1,6 @@
+dist/
+web-ext-artifacts/
+node_modules/
+npm-debug.log*
+.DS_Store
+build.sh

@@ -1,0 +1,9 @@
+{
+  "name": "kagi-x-karakeep",
+  "version": "0.1.3",
+  "private": true,
+  "scripts": {
+    "check": "node --check src/background.js && node --check src/content/kagi-results.js && node --check src/options/options.js && node scripts/validate-manifest.js",
+    "package": "node scripts/package-xpi.js"
+  }
+}

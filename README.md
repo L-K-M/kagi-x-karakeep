@@ -14,37 +14,31 @@ If you use an `http://` local address, enable `Allow HTTP server URLs for local/
 
 ## Build
 
-Run a syntax check:
+The tooling is [`web-ext`](https://extensionworkshop.com/documentation/develop/web-ext-command-reference/), Mozilla's official command-line tool, driven through `npm` scripts. Install it once:
 
 ```bash
-npm run check
+npm install
 ```
 
-Create a local unsigned XPI package:
+Then:
 
 ```bash
-npm run package
+npm run lint     # validate the manifest and sources (web-ext lint)
+npm run build    # package an unsigned .zip into web-ext-artifacts/
+npm run start    # run the add-on in a temporary Firefox profile (web-ext run)
 ```
 
-The package is written to:
+`npm run build` writes a version-stamped archive, e.g. `web-ext-artifacts/kagi_karakeep-0.1.3.zip`, containing only the runtime files (`manifest.json`, `src/`, `icons/`, `README.md`, `LICENSE`).
 
-```text
-dist/kagi-x-karakeep.xpi
-```
-
-For AMO-compatible builds and signing, install `web-ext` and store your credentials in `../web-ext-credentials.env`:
+To produce a signed `.xpi` for permanent installation, generate [Mozilla Add-ons API credentials](https://addons.mozilla.org/developers/addon/api/key/), then:
 
 ```bash
-WEB_EXT_API_KEY="your-api-key"
-WEB_EXT_API_SECRET="your-api-secret"
+export WEB_EXT_API_KEY="your-jwt-issuer"
+export WEB_EXT_API_SECRET="your-jwt-secret"
+npm run sign
 ```
 
-Then run:
-
-```bash
-chmod +x build.sh
-./build.sh
-```
+The same signing happens automatically in CI when a `v*` tag is pushed and the `AMO_JWT_ISSUER` / `AMO_JWT_SECRET` repository secrets are configured — see [CICD.md](CICD.md).
 
 ## Temporary Installation
 

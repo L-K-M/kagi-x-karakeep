@@ -1,6 +1,14 @@
-dist/
-web-ext-artifacts/
+# Dependencies
 node_modules/
 npm-debug.log*
+
+# Extension packaging artifacts
+web-ext-artifacts/
+dist/
+*.xpi
+*.zip
+.amo-upload-uuid
+
+# OS / editor
 .DS_Store
-build.sh
+.idea/

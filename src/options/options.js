@@ -15,11 +15,13 @@
   const resultLimitInput = document.getElementById("resultLimit");
   const allowHttpInput = document.getElementById("allowHttp");
   const testButton = document.getElementById("testConnection");
+  const toggleTokenButton = document.getElementById("toggleToken");
   const status = document.getElementById("status");
 
   document.addEventListener("DOMContentLoaded", init);
   form.addEventListener("submit", saveSettings);
   testButton.addEventListener("click", testConnection);
+  toggleTokenButton.addEventListener("click", toggleTokenVisibility);
 
   async function init() {
     const settings = await getSettings();
@@ -27,6 +29,14 @@
     apiTokenInput.value = settings.apiToken;
     resultLimitInput.value = String(settings.resultLimit);
     allowHttpInput.checked = settings.allowHttp;
+  }
+
+  function toggleTokenVisibility() {
+    const reveal = apiTokenInput.type === "password";
+    apiTokenInput.type = reveal ? "text" : "password";
+    toggleTokenButton.textContent = reveal ? "Hide" : "Show";
+    toggleTokenButton.setAttribute("aria-pressed", String(reveal));
+    toggleTokenButton.setAttribute("aria-label", reveal ? "Hide API token" : "Show API token");
   }
 
   async function saveSettings(event) {

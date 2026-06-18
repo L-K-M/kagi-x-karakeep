@@ -83,6 +83,20 @@ input[type="number"] {
   padding: 0 13px;
 }
 
+.token-row {
+  display: flex;
+  gap: 8px;
+}
+
+.token-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.token-row button {
+  flex: 0 0 auto;
+}
+
 .check-row {
   display: flex;
   align-items: flex-start;

@@ -396,9 +396,19 @@
 
   function styles() {
     return `
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
+
       :host {
         color-scheme: dark;
         display: block;
+        /* Fill the Kagi column rather than shrink-wrapping to content. Without
+           this the panel sizes to its widest result (long titles, nowrap URLs,
+           tag rows) and spills past the sidebar's right edge. */
+        width: 100%;
+        max-width: 100%;
+        align-self: stretch;
         margin: 0 0 16px;
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         --kxk-bg: #20212a;
@@ -451,6 +461,7 @@
         border-radius: 18px;
         background: var(--kxk-panel-gradient);
         color: var(--kxk-text);
+        max-width: 100%;
         overflow: hidden;
         box-shadow: var(--kxk-panel-shadow);
       }
@@ -547,10 +558,14 @@
         list-style: none;
         margin: 0;
         padding: 0;
+        /* Grid tracks default to min-content; let them shrink so long result
+           content wraps to the column width instead of widening the panel. */
+        min-width: 0;
       }
 
       .result {
         position: relative;
+        min-width: 0;
         padding: 14px 16px 14px 18px;
         border-bottom: 1px solid var(--kxk-border-soft);
         background: transparent;
@@ -613,6 +628,7 @@
         font-weight: 800;
         line-height: 1.28;
         text-decoration: none;
+        overflow-wrap: anywhere;
       }
 
       .title:hover {
@@ -637,6 +653,7 @@
         line-height: 1.4;
         margin: 7px 0 0;
         overflow: hidden;
+        overflow-wrap: anywhere;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 3;
       }
@@ -646,6 +663,7 @@
         flex-wrap: wrap;
         gap: 5px;
         margin-top: 9px;
+        min-width: 0;
       }
 
       .tags span {
@@ -654,6 +672,8 @@
         color: var(--kxk-tag-text);
         font-size: 11px;
         font-weight: 700;
+        max-width: 100%;
+        overflow-wrap: anywhere;
         padding: 3px 7px;
       }
 

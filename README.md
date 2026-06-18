@@ -67,4 +67,4 @@ Pushing the `v*` tag triggers [`.github/workflows/release.yml`](.github/workflow
 
 ## Notes
 
-This intentionally avoids Karakeep-Pipette's broader engine support, UI stack, and extra bookmark actions. The extension is plain JavaScript and only targets Kagi.
+Inspired by [Hoarder-Pipette](https://github.com/DanSnow/hoarder-pipette), but intentionally avoids its broader engine support, UI stack, and extra bookmark actions. The extension is plain JavaScript and only targets Kagi.

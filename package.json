@@ -4,11 +4,13 @@
   "description": "Shows Karakeep bookmark results beside Kagi search results.",
   "scripts": {
     "lint": "web-ext lint",
+    "lint:js": "eslint \"src/**/*.js\" eslint.config.mjs",
     "build": "web-ext build",
     "sign": "web-ext sign --channel=unlisted",
     "start": "web-ext run"
   },
   "devDependencies": {
+    "eslint": "^9.13.0",
     "web-ext": "^10.4.0"
   }
 }

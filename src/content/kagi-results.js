@@ -18,6 +18,7 @@
   let host = null;
   let shadow = null;
   let searchRun = 0;
+  let remountScheduled = false;
 
   init();
 
@@ -69,23 +70,47 @@
   }
 
   function ensurePanel() {
-    host = document.getElementById(HOST_ID);
     if (!host) {
-      host = document.createElement("aside");
+      host = document.getElementById(HOST_ID) || document.createElement("aside");
       host.id = HOST_ID;
       host.setAttribute("aria-label", "Karakeep results");
     }
 
-    const rightColumn = document.querySelector("._0_right_sidebar") || document.querySelector("._0_shlsidebar");
+    if (!shadow) {
+      shadow = host.shadowRoot || host.attachShadow({ mode: "open" });
+    }
+
+    mountPanel();
+  }
+
+  function findRightColumn() {
+    return document.querySelector("._0_right_sidebar") || document.querySelector("._0_shlsidebar");
+  }
+
+  // Attach the panel host to the best available container. Kagi loads the right
+  // sidebar's provider widgets (Wikipedia, etc.) asynchronously and can replace
+  // the sidebar's contents after we mount, dropping our panel from the page. So
+  // this is written to be safe to call repeatedly: it only moves the host when
+  // it has been detached or when a better container has appeared.
+  function mountPanel() {
+    if (!host) {
+      return;
+    }
+
+    const rightColumn = findRightColumn();
     if (rightColumn) {
-      rightColumn.prepend(host);
-    } else {
+      if (!rightColumn.contains(host)) {
+        host.classList.remove("kagi-x-karakeep-fallback");
+        rightColumn.prepend(host);
+      }
+      return;
+    }
+
+    if (!host.isConnected) {
       const appContent = document.querySelector(".app-content") || document.querySelector(".main-area") || document.body;
       appContent.append(host);
       host.classList.add("kagi-x-karakeep-fallback");
     }
-
-    shadow = host.shadowRoot || host.attachShadow({ mode: "open" });
   }
 
   function removePanel() {
@@ -201,14 +226,32 @@
   function watchUrlChanges() {
     let lastUrl = location.href;
     const observer = new MutationObserver(() => {
-      if (location.href === lastUrl) {
+      if (location.href !== lastUrl) {
+        lastUrl = location.href;
+        window.setTimeout(runForCurrentQuery, 50);
         return;
       }
-      lastUrl = location.href;
-      window.setTimeout(runForCurrentQuery, 50);
+      scheduleRemountCheck();
     });
     observer.observe(document.documentElement, { childList: true, subtree: true });
     window.addEventListener("popstate", () => window.setTimeout(runForCurrentQuery, 50));
+  }
+
+  // Kagi re-renders the right sidebar when its async widgets arrive, which can
+  // drop our panel from the page. Re-attach it (without re-searching) whenever
+  // the sidebar changes. Debounced so the busy mutation stream during page load
+  // costs a single check, and a no-op once the panel is already in place.
+  function scheduleRemountCheck() {
+    if (remountScheduled || !host || state.status === "idle") {
+      return;
+    }
+    remountScheduled = true;
+    window.setTimeout(() => {
+      remountScheduled = false;
+      if (host && state.status !== "idle") {
+        mountPanel();
+      }
+    }, 50);
   }
 
   async function sendMessage(message) {

@@ -37,6 +37,15 @@
     return undefined;
   });
 
+  // The toolbar button has no popup, so without this a click does nothing.
+  // Open the settings page — the most useful default action.
+  const action = ext.action || ext.browserAction;
+  if (action && action.onClicked) {
+    action.onClicked.addListener(() => {
+      openOptions();
+    });
+  }
+
   async function searchKarakeep(query) {
     try {
       const settings = await getSettings();

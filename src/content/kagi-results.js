@@ -177,13 +177,15 @@
     const url = isSafeHttpUrl(bookmark.url) ? bookmark.url : "";
     const hostname = getHostname(url);
     const tags = Array.isArray(bookmark.tags) ? bookmark.tags.slice(0, 4) : [];
+    const saved = formatSavedTime(bookmark.createdAt);
+    const meta = [hostname, saved].filter(Boolean).join(" · ");
     return `
       <li class="result">
         <div class="result-layout">
           ${bookmark.imageUrl ? `<div class="preview-shell"><img class="preview" data-preview-url="${escapeAttribute(bookmark.imageUrl)}" alt="" loading="lazy"></div>` : ""}
           <div class="result-copy">
             ${url ? `<a class="title" href="${escapeAttribute(url)}" target="_blank" rel="noreferrer">${escapeHtml(bookmark.title || url)}</a>` : `<span class="title">${escapeHtml(bookmark.title || "Untitled bookmark")}</span>`}
-            ${hostname ? `<p class="url">${escapeHtml(hostname)}</p>` : ""}
+            ${meta ? `<p class="url">${escapeHtml(meta)}</p>` : ""}
             ${bookmark.description ? `<p class="description">${escapeHtml(bookmark.description)}</p>` : ""}
             ${tags.length > 0 ? `<div class="tags">${tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}</div>` : ""}
           </div>
@@ -261,6 +263,36 @@
     } catch (_error) {
       return "";
     }
+  }
+
+  // Turn an ISO timestamp into a compact "Saved 3 days ago" label. Returns ""
+  // for missing or unparseable timestamps so callers can omit it cleanly.
+  function formatSavedTime(createdAt) {
+    if (!createdAt) {
+      return "";
+    }
+    const then = Date.parse(createdAt);
+    if (Number.isNaN(then)) {
+      return "";
+    }
+
+    const seconds = Math.max(0, Math.round((Date.now() - then) / 1000));
+    const units = [
+      ["year", 31536000],
+      ["month", 2592000],
+      ["week", 604800],
+      ["day", 86400],
+      ["hour", 3600],
+      ["minute", 60],
+    ];
+
+    for (const [name, size] of units) {
+      const value = Math.floor(seconds / size);
+      if (value >= 1) {
+        return `Saved ${value} ${name}${value === 1 ? "" : "s"} ago`;
+      }
+    }
+    return "Saved just now";
   }
 
   function escapeHtml(value) {

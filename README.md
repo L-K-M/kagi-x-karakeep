@@ -4,6 +4,8 @@
 
 A small Firefox extension that adds a Karakeep results card to Kagi search pages. It reads the Kagi search term from `https://kagi.com/search?q=...`, searches your Karakeep bookmarks, and renders matching saved links in Kagi's right column.
 
+![Screenshot](screenshot.png)
+
 > [!IMPORTANT]
 > LLM Disclosure: This project was developed with the assistance of large language models (AI coding tools).
 

@@ -11,6 +11,6 @@
   },
   "devDependencies": {
     "eslint": "^9.13.0",
-    "web-ext": "^10.4.0"
+    "web-ext": "^10.6.0"
   }
 }

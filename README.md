@@ -1,5 +1,8 @@
 # Kagi × Karakeep
 
+> [!IMPORTANT]
+> LLM disclosure: This codebase was written with substantial help from large language models: AI coding agents working from the [`AGENTS.md`](AGENTS.md) brief in this repo.
+
 **Version:** [<!-- version -->1.1.0<!-- /version -->](https://github.com/L-K-M/kagi-x-karakeep/releases/latest)
 
 A small Firefox extension that adds a Karakeep results card to Kagi search pages. It reads the Kagi search term from `https://kagi.com/search?q=...`, searches your Karakeep bookmarks, and renders matching saved links in Kagi's right column.
